@@ -131,7 +131,6 @@ class MultivariateAnalysis(ComprehensiveEDA):
         Displays the locations of restaurants on a map of the USA using Folium.
         """
 
-
         # Initialize a folium map centered at the mean latitude and longitude
         map_center = [self.df['latitude'].mean(), self.df['longitude'].mean()]
         m = folium.Map(location=map_center, zoom_start=4)
@@ -197,7 +196,11 @@ class UserEDA(ComprehensiveEDA):
 
     def plot_wordcloud(self):
         """
+<<<<<<< HEAD
         Generate a word cloud that stems from the 'text' column in the dataset.
+=======
+        Generate a word cloud from the 'text' column in the dataset.
+>>>>>>> f7b2ec73384d46873c6e5d5ce8dcf1d17b6a8246
         """
         from wordcloud import WordCloud
         text = ' '.join(self.df['text'].dropna().tolist())

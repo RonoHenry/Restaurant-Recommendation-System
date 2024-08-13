@@ -31,8 +31,7 @@ def render_home_page():
         <style>
         .center-text {
             text-align: center;
-            underline:blue;
-        }
+                    }
         </style>
         """,
         unsafe_allow_html=True

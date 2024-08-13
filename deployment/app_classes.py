@@ -18,7 +18,7 @@ import numpy as np
 
 
 # Your Yelp API key
-API_KEY = st.secrets[api_key]
+API_KEY = "QO9XAZfxn80KoHc2rPOj9iEhWK2r8EJXfLNH_Q1F2O04d3XpAvdxFiX0Bz1wKge_hR0IMLsbsn2-ObSe0uTx5EWttuS_Yy_6wYvew5D0GXBGru_BV2OkyQDUlQOyZnYx"
 
 # Yelp Business Endpoint
 YELP_BUSINESS_URL = "https://api.yelp.com/v3/businesses/"

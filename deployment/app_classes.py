@@ -12,12 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 
-
-
-
-
-
-# Your Yelp API key
+# Yelp API key
 API_KEY = "QO9XAZfxn80KoHc2rPOj9iEhWK2r8EJXfLNH_Q1F2O04d3XpAvdxFiX0Bz1wKge_hR0IMLsbsn2-ObSe0uTx5EWttuS_Yy_6wYvew5D0GXBGru_BV2OkyQDUlQOyZnYx"
 
 # Yelp Business Endpoint
@@ -68,10 +63,9 @@ def create_feature_vectors(df):
     tfidf = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf.fit_transform(df['combined_features'])
     
-    # Combine the TF-IDF matrix with numerical columns
+    # Combine the TF-IDF matrix with numerical column stars
     numerical_features = df[['stars']].values
     combined_features = np.hstack((tfidf_matrix.toarray(), numerical_features))
-    # combined_features=tfidf_matrix
     
     return combined_features
 

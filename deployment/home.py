@@ -18,8 +18,6 @@ states_to_drop = ['Monatana', 'North Carolina']
 # Drop rows where the 'state' column contains 'Montana' or 'Delaware'
 df = df[~df['state'].isin(states_to_drop)]
 
-
-
 def render_home_page():
     # Initialize session state variables
     if 'recommendations' not in st.session_state:
@@ -87,7 +85,7 @@ def render_home_page():
                 # Use content-based filtering to find restaurants by category
                 st.session_state.recommendations = recommendation(df, state=state, category=selected_category)
             else:
-                st.write("Please select a valid restaurant name or cuisine to get recommendations.")
+                st.sidebar.warning("Please select a valid restaurant name or cuisine to get recommendations.")
 
     # Display the filtered DataFrame with selected columns
     if not st.session_state.recommendations.empty:
@@ -113,51 +111,42 @@ def render_home_page():
                 st.subheader("Restaurant Information", divider=True)
                 col1, col2 = st.columns(2)
                 with col1:
-                    
-                    
-                    st.write(f"**Restaurant Name:** {info['name']}")
-                    st.write(f"**State:** {info['state']}")
-                    st.write(f"**City:** {info['city']}")
-                    st.write(f"**Address:** {info['address']}")
-                    st.write(f"**Cuisine:** {info['categories']}")
-                    st.write(f"**Rating:** {info['stars']}")
-                    st.write(f"**Review Count:** {info['review_count']}")
-                    
-                    
-                    
-
-                    # st.write(f"**BUsiness_id:** {info['business_id']}")
+                    with st.container(height=420,border=True):
+                        st.write(f"**Restaurant Name:** {info['name']}")
+                        st.write(f"**State:** {info['state']}")
+                        st.write(f"**City:** {info['city']}")
+                        st.write(f"**Address:** {info['address']}")
+                        st.write(f"**Cuisine:** {info['categories']}")
+                        st.write(f"**Rating:** {info['stars']}")
+                        st.write(f"**Review Count:** {info['review_count']}")
                     
                 with col2:
+                    with st.container(height=420, border=True):    
+                        if 'latitude' in info and 'longitude' in info:
+                            latitude = info['latitude']
+                            longitude = info['longitude']
+
+                            if pd.notna(latitude) and pd.notna(longitude):
+                                # Create the Folium map centered on the marker's location
+                                m = folium.Map(location=[latitude, longitude], zoom_start=18, dragging=True, zoom_control=False,
+                                            scrollWheelZoom=False)
+
+                                # Add the marker to the map
+                                folium.Marker(
+                                    [latitude, longitude], popup=info['name'], tooltip=info['name']
+                                ).add_to(m)
+
+                                # Display the map in Streamlit
+                                st_folium(m, width=700, height=300)
+
+                                # Create a link for directions
+                                route = f"http://maps.google.com/maps?z=12&t=m&q=loc:{latitude}+{longitude}"
+                                st.button(f"[Get Directions]({route})")
+
+                        else:
+                            st.write("Location data is not available for this restaurant.")
                     
-                    if 'latitude' in info and 'longitude' in info:
-                        latitude = info['latitude']
-                        longitude = info['longitude']
-
-                        if pd.notna(latitude) and pd.notna(longitude):
-                            # Create the Folium map centered on the marker's location
-                            m = folium.Map(location=[latitude, longitude], zoom_start=18, dragging=True, zoom_control=False,
-                                        scrollWheelZoom=False)
-
-                            # Add the marker to the map
-                            folium.Marker(
-                                [latitude, longitude], popup=info['name'], tooltip=info['name']
-                            ).add_to(m)
-
-                            # Display the map in Streamlit
-                            st_folium(m, width=700, height=300)
-
-                            # Create a link for directions
-                            route = f"http://maps.google.com/maps?z=12&t=m&q=loc:{latitude}+{longitude}"
-                            st.button(f"[Get Directions]({route})")
-
-
-
-
-                    else:
-                        st.write("Location data is not available for this restaurant.")
-                
-                with st.expander("Restaurant Specialities", expanded=False):
+                with st.expander("Restaurant Images", expanded=False):
                     image_urls = get_business_image_urls(info["business_id"])
                     if image_urls:
                         # Create columns for the images
@@ -170,3 +159,6 @@ def render_home_page():
                                 st.image(url, use_column_width=True)
                     else:
                         st.write("No images available for this restaurant.")
+
+                with st.expander("Restaurant Reviews", expanded=False):
+                    st.write("incoming reviews")

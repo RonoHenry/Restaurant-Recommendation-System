@@ -24,12 +24,14 @@ def render_home_page():
         st.session_state.recommendations = pd.DataFrame()
     if 'selected_restaurant' not in st.session_state:
         st.session_state.selected_restaurant = None
+        
 
     st.markdown(
         """
         <style>
         .center-text {
             text-align: center;
+            underline:blue;
         }
         </style>
         """,

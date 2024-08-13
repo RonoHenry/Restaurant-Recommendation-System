@@ -1,63 +1,89 @@
 import streamlit as st
 
 def display_contact_info():
-    """Display the contact information of developers."""
+    """
+    Display the contact information of developers.
+    """
+
     # Include FontAwesome CDN in your app
     st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">', unsafe_allow_html=True)
 
     # Developer Contacts
     with st.container(border=True):
         st.header("Developer Contacts", divider=True)
-        col1, col2, col3 = st.columns(3)
         
-        with col1:
-            st.markdown(
-                '<i class="fas fa-user"></i> Harris Lukundi<br>'
-                '[Email](mailto:harris.lukundi@student.moringaschool.com)<br>'
-                '[Github](https://github.com/AtomHarris)',
-                unsafe_allow_html=True
-            )
-        
-        with col2:
-            st.markdown(
-                '<i class="fas fa-user"></i> Brian Muthama<br>'
-                '[Email](mailto:brian.muthama@student.moringaschool.com)<br>'
-                '[Github](https://github.com/Muthama42)',
-                unsafe_allow_html=True
-            )
-        
-        with col3:
-            st.markdown(
-                '<i class="fas fa-user"></i> Beryl Agai<br>'
-                '[Email](mailto:beryl.agai@student.moringaschool.com)<br>'
-                '[Github](https://github.com/Agai-Beryl)',
-                unsafe_allow_html=True
-            )
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.markdown(
-                '<i class="fas fa-user"></i> Chris Laaria<br>'
-                '[Email](mailto:laaria.chris@student.moringaschool.com)<br>'
-                '[Github](https://github.com/laaria-chris)',
-                unsafe_allow_html=True
-            )
-        
-        with col2:
-            st.markdown(
-                '<i class="fas fa-user"></i> Henry Rono<br>'
-                '[Email](mailto:henry.rono@student.moringaschool.com)<br>'
-                '[Github](https://github.com/RonoHenry)',
-                unsafe_allow_html=True
-            )
-        
-        with col3:
-            st.markdown(
-                '<i class="fas fa-user"></i> Lynette Wangari<br>'
-                '[Email](mailto:lynette.wangari@student.moringaschool.com)<br>'
-                '[Github](https://github.com/Wangari-web)',
-                unsafe_allow_html=True
-            )
+        with st.container(border=True):
+            col1, col2 = st.columns([1,2])
+            with col1:
+                st.markdown(
+                    '<i class="fas fa-user"></i> Harris Lukundi<br>'
+                    '[Email](mailto:harris.lukundi@student.moringaschool.com)<br>'
+                    '[Github](https://github.com/AtomHarris)',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.write("Developers Profile")
+                st.write(" ...")
+        with st.container(border=True):    
+            col1, col2 = st.columns([1,2])
+            with col1:
+                st.markdown(
+                    '<i class="fas fa-user"></i> Brian Muthama<br>'
+                    '[Email](mailto:brian.muthama@student.moringaschool.com)<br>'
+                    '[Github](https://github.com/Muthama42)',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.write("Developers Profile")
+                st.write(" ...")
+        with st.container(border=True):
+            col1, col2 = st.columns([1,2])
+            with col1:
+                st.markdown(
+                    '<i class="fas fa-user"></i> Beryl Agai<br>'
+                    '[Email](mailto:beryl.agai@student.moringaschool.com)<br>'
+                    '[Github](https://github.com/Agai-Beryl)',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.write("Developers Profile")
+                st.write(" ...")
+        with st.container(border=True):
+            col1, col2 = st.columns([1,2])
+            with col1:
+                st.markdown(
+                    '<i class="fas fa-user"></i> Chris Laaria<br>'
+                    '[Email](mailto:laaria.chris@student.moringaschool.com)<br>'
+                    '[Github](https://github.com/laaria-chris)',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.write("Developers Profile")
+                st.write(" ...")
+        with st.container(border=True):
+            col1, col2 = st.columns([1,2])
+            with col1:
+                st.markdown(
+                    '<i class="fas fa-user"></i> Henry Rono<br>'
+                    '[Email](mailto:henry.rono@student.moringaschool.com)<br>'
+                    '[Github](https://github.com/RonoHenry)',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.write("Developers Profile")
+                st.write(" ...")
+        with st.container(border=True):
+            col1, col2 = st.columns([1,2])
+            with col1:
+                st.markdown(
+                    '<i class="fas fa-user"></i> Lynette Wangari<br>'
+                    '[Email](mailto:lynette.wangari@student.moringaschool.com)<br>'
+                    '[Github](https://github.com/Wangari-web)',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.write("Developers Profile")
+                st.write(" ...")
 
 
 
@@ -99,6 +125,4 @@ def contact_form():
                 else:
                     st.error("Please fill out all fields.")
 
-# Call functions to display content
-display_contact_info()
-contact_form()
+

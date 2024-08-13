@@ -18,7 +18,7 @@ import numpy as np
 
 
 # Your Yelp API key
-API_KEY = 'QO9XAZfxn80KoHc2rPOj9iEhWK2r8EJXfLNH_Q1F2O04d3XpAvdxFiX0Bz1wKge_hR0IMLsbsn2-ObSe0uTx5EWttuS_Yy_6wYvew5D0GXBGru_BV2OkyQDUlQOyZnYx'
+API_KEY = st.secret(api_key)
 
 # Yelp Business Endpoint
 YELP_BUSINESS_URL = "https://api.yelp.com/v3/businesses/"
@@ -102,7 +102,7 @@ def recommendation(df, state, name=None, category=None):
         recommended_restaurants = preprocessed.iloc[top_indices]
         recommended_restaurants = recommended_restaurants[~recommended_restaurants['name'].isin(exclude_names)]        
         
-        return recommended_restaurants[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name').sort_values(by=["city", "stars"], ascending=False)
+        return recommended_restaurants[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name').sort_values(by=["city", "stars"], ascending=False)[:30]
     
     elif category:
         return cuisines(category)

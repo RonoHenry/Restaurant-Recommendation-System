@@ -1,11 +1,10 @@
 import streamlit as st
 import pandas as pd
-import folium
-from streamlit_folium import st_folium
-from streamlit_option_menu import option_menu
-#from deployment import home, app_about
-from deployment.home import render_home_page
 from deployment.app_about import about_us
+from streamlit_option_menu import option_menu
+from deployment.home import render_home_page
+
+
 
 # Company Logo
 st.sidebar.image('Images/image5.png', use_column_width=True)

@@ -3,7 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 from streamlit_option_menu import option_menu
-from app_feedback import display_contact_info,contact_form
+from deployment.app_feedback import display_contact_info,contact_form
 
 
 

@@ -131,6 +131,7 @@ class MultivariateAnalysis(ComprehensiveEDA):
         Displays the locations of restaurants on a map of the USA using Folium.
         """
 
+
         # Initialize a folium map centered at the mean latitude and longitude
         map_center = [self.df['latitude'].mean(), self.df['longitude'].mean()]
         m = folium.Map(location=map_center, zoom_start=4)

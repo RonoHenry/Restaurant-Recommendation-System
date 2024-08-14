@@ -6,6 +6,8 @@ from wordcloud import WordCloud
 from IPython.display import display
 import json
 from shapely.geometry import Point
+import folium
+from folium.plugins import MarkerCluster
 
 
 
@@ -117,7 +119,7 @@ class MultivariateAnalysis(ComprehensiveEDA):
         top_rated = self.df.groupby('state').apply(lambda x: x.nlargest(1, 'stars'))
         plt.figure(figsize=(12, 8))
         sns.barplot(data=top_rated, x='state', y='stars', hue='name')
-        plt.title('Top Rated Restaurants by State')
+        plt.title('Top Rated Restaurants per State')
         plt.xlabel('State')
         plt.ylabel('Stars')
         plt.xticks(rotation=45)
@@ -128,8 +130,7 @@ class MultivariateAnalysis(ComprehensiveEDA):
         """
         Displays the locations of restaurants on a map of the USA using Folium.
         """
-        import folium
-        from folium.plugins import MarkerCluster
+
 
         # Initialize a folium map centered at the mean latitude and longitude
         map_center = [self.df['latitude'].mean(), self.df['longitude'].mean()]
@@ -196,7 +197,11 @@ class UserEDA(ComprehensiveEDA):
 
     def plot_wordcloud(self):
         """
+<<<<<<< HEAD
+        Generate a word cloud that stems from the 'text' column in the dataset.
+=======
         Generate a word cloud from the 'text' column in the dataset.
+>>>>>>> f7b2ec73384d46873c6e5d5ce8dcf1d17b6a8246
         """
         from wordcloud import WordCloud
         text = ' '.join(self.df['text'].dropna().tolist())

@@ -132,7 +132,7 @@ def render_home_page():
                     st.subheader(f"{info['name']} Information", divider=True)
                     col1, col2 = st.columns([2,1])
                     with col2:
-                        with st.container(height=420,border=True):
+                        with st.container(height=520,border=True):
                             # st.write(f"**Restaurant Name:** {info['name']}")
                             st.write(f"**State:** {info['state']}")
                             st.write(f"**City:** {info['city']}")
@@ -141,13 +141,12 @@ def render_home_page():
                             st.write(f"**Rating:** {info['stars']}")
                             formatted_attributes = format_attributes(info['attributes_true'])
                             st.write(f"**Features:**\n{formatted_attributes}")
-
-                            st.link_button("Visit Website", 'get_business_info(info["business_id"]["website"])')
+                            st.link_button("Visit Website", get_business_info(info["business_id"])["website"])
 
                             
                                                 
                     with col1:
-                        with st.container(height=420, border=True):    
+                        with st.container(height=520, border=True):    
                             if 'latitude' in info and 'longitude' in info:
                                 latitude = info['latitude']
                                 longitude = info['longitude']
@@ -155,12 +154,10 @@ def render_home_page():
                                 if pd.notna(latitude) and pd.notna(longitude):
                                     
                                     m = folium.Map(location=[latitude, longitude], zoom_start=16, dragging=True, zoom_control=True,
-                                                scrollWheelZoom=False)
+                                                scrollWheelZoom=True)
 
-                                    
                                     icon = folium.Icon(icon='star', color='red') 
 
-                                    
                                     folium.Marker(
                                         location=[latitude, longitude],
                                         popup=info['name'],
@@ -169,7 +166,7 @@ def render_home_page():
                                     ).add_to(m)
 
                                     
-                                    st_folium(m, width=700, height=300)
+                                    st_folium(m, width=700, height=400)
 
                                     route = f"http://maps.google.com/maps?z=12&t=m&q=loc:{latitude}+{longitude}"
                                     st.button(f"[Get Directions]({route})")

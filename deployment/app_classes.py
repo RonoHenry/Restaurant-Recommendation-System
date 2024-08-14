@@ -39,8 +39,6 @@ def get_business_info(business_id):
         reviews = business_data.get('reviews', '')
 
         image_urls = business_data.get('photos', [])
-        
-
         return {
             'name': name,
             'phone': phone,
@@ -76,11 +74,11 @@ def create_feature_vectors(df):
     Performing vectorization of the preprocessed categorical features 
     and combining with the numerical features
     """
-    # Vectorize the combined text features
+    
     tfidf = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf.fit_transform(df['combined_features'])
     
-    # Combine the TF-IDF matrix with numerical columns
+    
     numerical_features = df[['stars']].values
     combined_features = np.hstack((tfidf_matrix.toarray(), numerical_features))
     # combined_features=tfidf_matrix
@@ -169,18 +167,21 @@ def pagenation(df, filter_column):
     return page_df
 
 
-# Function to format each word with spaces at capital letters
+
 def format_word(word):
-    # Add a space before each capital letter that is not at the start of the word
+    
     return re.sub(r'(?<!^)(?=[A-Z])', ' ', word)
 
-# Function to format attributes
+
 def format_attributes(attributes):
-    # Split the attributes by spaces
+    
+   
     words = attributes.split()
-    # Format each word
+
+    
     formatted_words = [format_word(word) for word in words]
-    # Join the formatted words into a single string with new lines for each word
+
+    
     formatted_string = '\n'.join(formatted_words)
     return formatted_string
 

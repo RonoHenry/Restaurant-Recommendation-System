@@ -6,8 +6,7 @@ from wordcloud import WordCloud
 from IPython.display import display
 import json
 from shapely.geometry import Point
-import folium
-from folium.plugins import MarkerCluster
+
 
 
 
@@ -102,10 +101,6 @@ class BivariateAnalysis(ComprehensiveEDA):
         plt.grid(True)
         plt.show()
 
-
-
-
-
 class MultivariateAnalysis(ComprehensiveEDA):
     """
     Perform multivariate analysis to understand complex relationships between multiple features.
@@ -116,7 +111,10 @@ class MultivariateAnalysis(ComprehensiveEDA):
         """
         Plots the top-rated restaurant in each state.
         """
-        top_rated = self.df.groupby('state').apply(lambda x: x.nlargest(1, 'stars'))
+        # Find the top-rated restaurant in each state
+        top_rated = self.df.groupby('state').apply(lambda x: x.nlargest(1, 'stars')).reset_index(drop=True)
+
+        # Plotting the top-rated restaurants per state
         plt.figure(figsize=(12, 8))
         sns.barplot(data=top_rated, x='state', y='stars', hue='name')
         plt.title('Top Rated Restaurants per State')
@@ -126,28 +124,8 @@ class MultivariateAnalysis(ComprehensiveEDA):
         plt.grid(True)
         plt.show()
 
-    def plot_restaurant_locations_folium(self):
-        """
-        Displays the locations of restaurants on a map of the USA using Folium.
-        """
+    
 
-
-        # Initialize a folium map centered at the mean latitude and longitude
-        map_center = [self.df['latitude'].mean(), self.df['longitude'].mean()]
-        m = folium.Map(location=map_center, zoom_start=4)
-
-        # Add a marker cluster
-        marker_cluster = MarkerCluster().add_to(m)
-
-        # Add markers to the map
-        for idx, row in self.df.iterrows():
-            folium.Marker(
-                location=[row['latitude'], row['longitude']],
-                popup=f"{row['name']} ({row['stars']} stars)"
-            ).add_to(marker_cluster)
-
-        # Display the map
-        return m
 
 
 
@@ -197,11 +175,7 @@ class UserEDA(ComprehensiveEDA):
 
     def plot_wordcloud(self):
         """
-<<<<<<< HEAD
         Generate a word cloud that stems from the 'text' column in the dataset.
-=======
-        Generate a word cloud from the 'text' column in the dataset.
->>>>>>> f7b2ec73384d46873c6e5d5ce8dcf1d17b6a8246
         """
         from wordcloud import WordCloud
         text = ' '.join(self.df['text'].dropna().tolist())

@@ -1,23 +1,19 @@
+
+
 import time
 import folium
 import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from deployment.app_classes import recommendation, pagenation, get_business_info, format_attributes
+from deployment.app_classes import recommendation, pagenation, get_business_info, get_yelp_reviews
+
 
 
 # Load your restaurant data
 # @st.cache_data
 df = pd.read_pickle('pickled_files/restaurant_data.pkl')
 
-# Assuming your DataFrame is named 'df' and has a column named 'state'
-states_to_drop = ['Monatana', 'North Carolina']
-
-# Drop rows where the 'state' column contains 'Montana' or 'Delaware'
-df = df[~df['state'].isin(states_to_drop)]
 
 def render_home_page():
     with st.container(border=True):
@@ -42,6 +38,10 @@ def render_home_page():
         st.markdown('<h3 class="center-text" style="color: royal blue;">A Revolution In Restaurant Recommendation</h3>', unsafe_allow_html=True)
         # st.markdown('<h6 class="center-text" style="color: royal blue;">Are you in a new city and are craving your favourite meal? Do you miss a taste of home?</h2>', unsafe_allow_html=True)
         # st.markdown('<h6 class="center-text" style="color: royal blue;">Well look no further! Gourmet Guru has got you covered!!!</h2>', unsafe_allow_html=True)
+        st.write('Do you miss a taste of your favourite restaurants?')
+        st.write("Are you in a new city and are craving your favourite meal?")
+        st.write("Well look no further! Gourmet Guru has got you covered!!!")
+
         
         # Sidebar for user inputs
         st.sidebar.header('Search for a Restaurant', divider= "rainbow")
@@ -91,7 +91,7 @@ def render_home_page():
                 # Extract unique categories and create a selectbox
                 categories = sorted(df[(df['state'] == state) & (df['city'] == city)]['categories'].unique())
                 selected_category = st.sidebar.selectbox("Choose a Cuisine", ['All'] + categories)
-                # restaurant_name = selected_category
+                
 
 
 
@@ -110,7 +110,7 @@ def render_home_page():
 
         # Display the filtered DataFrame with selected columns
         if not st.session_state.recommendations.empty:
-            st.spinner("COOKING SOMETHING UP FOR YOU!!!!!")
+            # st.spinner("COOKING SOMETHING UP FOR YOU!!!!!")
             st.subheader('Recommended Restaurants', divider= True)
             
             # Paginate the filtered recommendations
@@ -128,25 +128,25 @@ def render_home_page():
 
             if st.session_state.selected_restaurant != 'Select a Restaurant':
                 info = df[df['name'] == st.session_state.selected_restaurant].iloc[0]
+                
                 with st.container(border=True):
                     st.subheader(f"{info['name']} Information", divider=True)
                     col1, col2 = st.columns([2,1])
                     with col2:
-                        with st.container(height=420,border=True):
+                        with st.container(height=520,border=True):
                             # st.write(f"**Restaurant Name:** {info['name']}")
                             st.write(f"**State:** {info['state']}")
                             st.write(f"**City:** {info['city']}")
-                            st.write(f"**Address:** {info['address']}")
+                            st.write(f"**Address:** {(info['address'])}")
+                            st.write(f"**Phone:** {get_business_info(info['business_id'])['phone']}")
                             st.write(f"**Cuisine:** {info['categories']}")
                             st.write(f"**Rating:** {info['stars']}")
-                            formatted_attributes = format_attributes(info['attributes_true'])
-                            st.write(f"**Features:**\n{formatted_attributes}")
                             st.link_button("Visit Website", get_business_info(info["business_id"])["website"])
 
                             
                                                 
                     with col1:
-                        with st.container(height=420, border=True):    
+                        with st.container(height=520, border=True):    
                             if 'latitude' in info and 'longitude' in info:
                                 latitude = info['latitude']
                                 longitude = info['longitude']
@@ -166,7 +166,7 @@ def render_home_page():
                                     ).add_to(m)
 
                                     
-                                    st_folium(m, width=700, height=300)
+                                    st_folium(m, width=700, height=400)
 
                                     route = f"http://maps.google.com/maps?z=12&t=m&q=loc:{latitude}+{longitude}"
                                     st.button(f"[Get Directions]({route})")
@@ -191,16 +191,16 @@ def render_home_page():
                         with tab1:
                             #Display business hours if available
                             day_mapping = {
-                                    0: 'Mon',
-                                    1: 'Tue',
-                                    2: 'Wed',
-                                    3: 'Thu',
-                                    4: 'Fri',
-                                    5: 'Sat',
-                                    6: 'Sun'
+                                    0: 'Monday',
+                                    1: 'Tuesday',
+                                    2: 'Wednesday',
+                                    3: 'Thursday',
+                                    4: 'Friday',
+                                    5: 'Saturday',
+                                    6: 'Sunday'
                                 }
                             if 'hours' in get_business_info(info["business_id"]) and get_business_info(info["business_id"])['hours']:
-                                st.write("**Hours:**")
+                                st.subheader("**Open Hours:**", divider= True)
                                 # Initialize dictionary to store hours
                                 hours_dict = {day: 'Closed' for day in day_mapping.values()}
                                 for item in get_business_info(info["business_id"])['hours'][0]['open']:
@@ -215,4 +215,15 @@ def render_home_page():
                                 for day, hours in hours_dict.items():
                                     st.write(f"{day}: {hours}")
                         with tab2:
-                            st.write("reviewsincoming")
+                            st.subheader("Restaurant Reviews", divider=True)
+                            reviews = get_yelp_reviews(info["business_id"])
+                            if reviews:
+                                for review in reviews:
+                                    st.subheader(f"Review by {review['user']}")
+                                    st.write(f"Rating: {review['rating']}")
+                                    st.write(f"Date: {review['time_created']}")
+                                    st.write(f"Review: {review['text']}")
+                                    st.write("---")
+                            else:
+                                st.write("No reviews found or an error occurred.")
+                        

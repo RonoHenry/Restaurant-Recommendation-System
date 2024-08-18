@@ -69,7 +69,7 @@ def ratings():
 
                 if city != 'Select a City':
                 
-                    filtered_df = all_restaurants_df[(all_restaurants_df[all_restaurants_df['state'] == state])&(all_restaurants_df[all_restaurants_df['city'] == city])]
+                    filtered_df = all_restaurants_df[(all_restaurants_df['state'] == state) & (all_restaurants_df['city'] == city)]
                         
                     if not st.session_state.get('ratings_confirmed', False):
                         if filtered_df.empty:

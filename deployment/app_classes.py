@@ -1,5 +1,5 @@
 
-
+import pickle
 import requests
 import numpy as np
 import pandas as pd
@@ -10,19 +10,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
  
 
-# @st.cache_resource
-# def load_model():
-#     with open('pickled_files/svd.pkl', 'rb') as file:
-#         return pickle.load(file)
+# @st.cache_data
+# def load_new_data():
+#     return pd.read_csv('data/new_df.csv')
 
-# svd = load_model()
+
+
+# # Call the function to get the data
+# new_df = load_new_data()
+
 
 @st.cache_data
-def load_new_data():
-    return pd.read_csv('data/new_df.csv')
+def load_data():
+    return pd.read_pickle('pickled_files/new_df.pkl')
 
-# Call the function to get the data
-new_df = load_new_data()
+new_df = load_data()
 
 # Yelp API key
 API_KEY = "QO9XAZfxn80KoHc2rPOj9iEhWK2r8EJXfLNH_Q1F2O04d3XpAvdxFiX0Bz1wKge_hR0IMLsbsn2-ObSe0uTx5EWttuS_Yy_6wYvew5D0GXBGru_BV2OkyQDUlQOyZnYx"

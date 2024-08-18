@@ -14,10 +14,11 @@ df = load_data()
 
 # Loading the user review data
 @st.cache_data
-def load_new_data():
-    return pd.read_csv('data/new_df.csv')
+def load_data():
+    return pd.read_pickle('pickled_files/new_df.pkl')
 
-new_df = load_new_data()
+new_df = load_data()
+
 
 
 def reset_state():

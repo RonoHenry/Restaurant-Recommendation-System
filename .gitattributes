@@ -1,3 +1,4 @@
 data/users.csv filter=lfs diff=lfs merge=lfs -text
 pickled_files/svd.pkl filter=lfs diff=lfs merge=lfs -text
 data/new_df.csv filter=lfs diff=lfs merge=lfs -text
+pickled_files/new_df.pkl filter=lfs diff=lfs merge=lfs -text

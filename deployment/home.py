@@ -12,7 +12,7 @@ from deployment.app_classes import recommendation, pagenation, get_business_info
 
 # Load your restaurant data
 # @st.cache_data
-df = pd.read_pickle('pickled_files/restaurant_data.pkl')
+df = pd.read_pickle('pickled_files/restaurants_data.pkl')
 
 
 def render_home_page():

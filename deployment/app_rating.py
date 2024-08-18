@@ -7,12 +7,6 @@ from streamlit_folium import st_folium
 from surprise import SVD, Dataset, Reader
 from deployment.app_classes import pagenation, recommend_restaurants, collect_ratings, get_business_info, get_yelp_reviews
 
-# @st.cache_resource
-# def load_model():
-#     with open('pickled_files/svd.pkl', 'rb') as file:
-#         return pickle.load(file)
-
-# svd = load_model()
 
 @st.cache_data
 def load_data():
@@ -20,7 +14,11 @@ def load_data():
 
 df = load_data()
 
-new_df = pd.read_csv('data/new_df.csv')
+@st.cache_data
+def load_new_data():
+    return pd.read_csv('data/new_df.csv')
+
+new_df = load_new_data()
 
 
 def reset_state():

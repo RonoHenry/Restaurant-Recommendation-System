@@ -13,14 +13,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
  
 
-@st.cache_resource
-def load_model():
-    with open('pickled_files/svd.pkl', 'rb') as file:
-        return pickle.load(file)
+# @st.cache_resource
+# def load_model():
+#     with open('pickled_files/svd.pkl', 'rb') as file:
+#         return pickle.load(file)
 
-svd = load_model()
+# svd = load_model()
 
-new_df = pd.read_csv('data/new_df.csv')
+@st.cache_data
+def load_new_data():
+    return pd.read_csv('data/new_df.csv')
+
+# Call the function to get the data
+new_df = load_new_data()
 
 # Yelp API key
 API_KEY = "QO9XAZfxn80KoHc2rPOj9iEhWK2r8EJXfLNH_Q1F2O04d3XpAvdxFiX0Bz1wKge_hR0IMLsbsn2-ObSe0uTx5EWttuS_Yy_6wYvew5D0GXBGru_BV2OkyQDUlQOyZnYx"
@@ -229,16 +234,17 @@ def collect_ratings(df, state=None):
     for i in range(num_ratings):
         restaurant = st.session_state.sampled_restaurants.iloc[i]
         with cols[i]:
-            st.write(f"**Restaurant:** {restaurant['name']} ({restaurant['city']}, {restaurant['state']})")
-            st.write(f"**Cuisine:** {restaurant['categories']}")  
-            rating = st.number_input(
-                f"Rate {restaurant['name']}",
-                min_value=1.0,  
-                max_value=5.0,  
-                value=3.0,
-                step=1.0,  
-                key=f"rating_{restaurant['business_id']}"
-            )
+            with st.container(border=True, height= 250):
+                st.write(f"**Restaurant:** {restaurant['name']} ({restaurant['city']}, {restaurant['state']})")
+                st.write(f"**Cuisine:** {restaurant['categories']}")  
+                rating = st.number_input(
+                    f"Rate {restaurant['name']}",
+                    min_value=1.0,  
+                    max_value=5.0,  
+                    value=3.0,
+                    step=1.0,  
+                    key=f"rating_{restaurant['business_id']}"
+                )
             # Update the ratings list in session state
             # Remove old rating for this restaurant if exists
             st.session_state.user_ratings = [

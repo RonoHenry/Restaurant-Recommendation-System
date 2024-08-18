@@ -9,10 +9,11 @@ from streamlit_folium import st_folium
 from deployment.app_classes import recommendation, pagenation, get_business_info, get_yelp_reviews
 
 
+@st.cache_data
+def load_data():
+    return pd.read_pickle('pickled_files/restaurants_data.pkl')
 
-# Load your restaurant data
-# @st.cache_data
-df = pd.read_pickle('pickled_files/restaurants_data.pkl')
+df = load_data()
 
 
 def render_home_page():

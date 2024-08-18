@@ -11,7 +11,7 @@ st.sidebar.image('Images/image5.png', use_column_width=True)
 # Home Page Option Menu Initialization
 selected = option_menu(
     menu_title=None,
-    options=["Taste Of Home", "Try something New", "About Us"],
+    options=["Taste Of Home", "Try Something New", "About Us"],
     icons=["house", "award", "three-dots"],
     menu_icon="cast",
     default_index=0,
@@ -21,7 +21,7 @@ selected = option_menu(
 if selected == "Taste Of Home":
     render_home_page()
 
-elif selected == "Try something New":
+elif selected == "Try Something New":
     ratings()
     # st.write("Help!")
 

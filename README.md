@@ -1,6 +1,6 @@
 # GOURMET GURU RESTAURANT RECOMMENDER SYSTEM
 ***
-[9cc03825-a86d-41ec-b6a0-f21a93c31551.webm](https://github.com/user-attachments/assets/6bfaccc6-4f4d-4a05-97af-6f6c4996c4fd)
+
 
 
 ![Restaurant](Images/Home-page.png)

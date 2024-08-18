@@ -1,19 +1,18 @@
 import time
 import folium
-import pickle
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
-from surprise import SVD, Dataset, Reader
 from deployment.app_classes import pagenation, recommend_restaurants, collect_ratings, get_business_info, get_yelp_reviews
 
-
+# Loading the restaurant data
 @st.cache_data
 def load_data():
     return pd.read_pickle('pickled_files/restaurants_data.pkl')
 
 df = load_data()
 
+# Loading the user review data
 @st.cache_data
 def load_new_data():
     return pd.read_csv('data/new_df.csv')
@@ -22,15 +21,22 @@ new_df = load_new_data()
 
 
 def reset_state():
+    """
+    Function to reset session state
+    """
     st.session_state.selected_restaurant = None
     st.session_state.ratings = []
     st.session_state.ratings_confirmed = False
     st.session_state.recommendations = pd.DataFrame()
 
 def ratings():
+    """
+    Function to use the ratings for the sampled restaurants and recommend restaurants similar to those restaurants
+    """
     with st.container(border=True):
         st.header('🍴 Restaurant Recommendations', divider=True)
 
+        # Initializing the session states
         if 'selected_restaurant' not in st.session_state:
             st.session_state.selected_restaurant = None
 
@@ -43,7 +49,7 @@ def ratings():
         if 'recommendations' not in st.session_state:
             st.session_state.recommendations = pd.DataFrame() 
 
-      
+        # re-assigning the variable df to all_restaurants
         all_restaurants_df = df
 
         # Get user input
@@ -55,24 +61,21 @@ def ratings():
             state = st.selectbox('Choose Your State:', ['Select a State'] + states, index=0)
 
             if state == 'Select a State':
-                state = None
-
-            # Filter cities based on selected state
-            if state:
+                state = sorted(all_restaurants_df['city'].unique())
+            else:
                 cities = sorted(all_restaurants_df[all_restaurants_df['state'] == state]['city'].unique())
                 city = st.selectbox('Choose Your City:', ['Select a City'] + cities, index=0)
-            else:
-                city = None
 
-            # Filter dataframe based on selected state and city
-            filtered_df = all_restaurants_df
-            if state:
-                filtered_df = filtered_df[filtered_df['state'] == state]
-            if city:
-                filtered_df = filtered_df[filtered_df['city'] == city]
-                    
-                if not st.session_state.get('ratings_confirmed', False):
-                    collect_ratings(filtered_df, state)
+                if city != 'Select a City':
+                
+                    filtered_df = all_restaurants_df[(all_restaurants_df[all_restaurants_df['state'] == state])&(all_restaurants_df[all_restaurants_df['city'] == city])]
+                        
+                    if not st.session_state.get('ratings_confirmed', False):
+                        if filtered_df.empty:
+                            st.write("No restaurants available for the selected criteria.")
+                        else:
+                            collect_ratings(filtered_df, state)
+
                     # st.write("Current Ratings:", st.session_state.get('user_ratings', {}))
 
                     if st.button("Confirm Ratings"):
@@ -80,12 +83,13 @@ def ratings():
                             st.session_state.ratings_confirmed = True
                             time.sleep(2)
                             st.session_state.recommendations = recommend_restaurants(user_id, st.session_state.get('user_ratings', []), all_restaurants_df, state)
-                        
-
+                    
+            # Get the top recommendations and pagenate them
             if not st.session_state.recommendations.empty:
                 st.write("Top Recommendations:")
                 filtered_df = pagenation(st.session_state.recommendations, 'city')
 
+                # Selecting restaurant to view details on
                 if not filtered_df.empty:
                     selected_restaurant = st.selectbox(
                         'Select a Restaurant to View Details',
@@ -102,6 +106,8 @@ def ratings():
                         with st.container(border=True):
                             st.subheader(f"{info['name']} Information", divider=True)
                             col1, col2 = st.columns([2, 1])
+
+                            # Metainformation on the restaurant
                             with col2:
                                 with st.container(height=520, border=True):
                                     st.write(f"**State:** {info['state']}")
@@ -112,6 +118,7 @@ def ratings():
                                     st.write(f"**Rating:** {info['stars']}")
                                     st.link_button("Visit Website", get_business_info(info["business_id"])["website"])
 
+                            # Folium map for the restaurant location
                             with col1:
                                 with st.container(border=True):    
                                     if 'latitude' in info and 'longitude' in info:
@@ -128,6 +135,7 @@ def ratings():
                                     else:
                                         st.write("Location data is not available for this restaurant.")
 
+                            # Scrapped images from the choosen restaurant on Yelp
                             with st.expander("Restaurant Images", expanded=False):
                                 image_urls = get_business_info(info["business_id"])["image_urls"]
                                 if image_urls:
@@ -140,8 +148,11 @@ def ratings():
                                 else:
                                     st.write("No images available for this restaurant.")
 
+                            # More scrapped information on the restaurant
                             with st.expander("More Information", expanded=False):
                                 tab1, tab2 = st.tabs(["Hours", "Reviews"])
+
+                                # Working hours if available
                                 with tab1:
                                     day_mapping = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'}
                                     if 'hours' in get_business_info(info["business_id"]) and get_business_info(info["business_id"])['hours']:
@@ -156,6 +167,7 @@ def ratings():
                                                 hours_dict[day_name] = f"{start} - {end}"
                                         for day, hours in hours_dict.items():
                                             st.write(f"{day}: {hours}")
+                                # Reviews on the restaurant
                                 with tab2:
                                     st.subheader("Restaurant Reviews", divider=True)
                                     reviews = get_yelp_reviews(info["business_id"])

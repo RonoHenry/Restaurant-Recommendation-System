@@ -1,14 +1,12 @@
 
 
-import time
 import folium
-import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
 from deployment.app_classes import recommendation, pagenation, get_business_info, get_yelp_reviews
 
-
+# Loading the restaurant data
 @st.cache_data
 def load_data():
     return pd.read_pickle('pickled_files/restaurants_data.pkl')
@@ -17,6 +15,9 @@ df = load_data()
 
 
 def render_home_page():
+    """
+    Function to recommend restaurants based on restaurant name or cuisine in any state in the database
+    """
     with st.container(border=True):
         # Initialize session state variables
         if 'recommendations' not in st.session_state:
@@ -89,14 +90,15 @@ def render_home_page():
                         filtered_cities = sorted(df[df['state'] == state]['city'].unique())
 
             elif search_option =='Cuisine':
-                # Extract unique categories and create a selectbox
+
+                # Extracting unique categories and creating a selectbox
                 categories = sorted(df[(df['state'] == state) & (df['city'] == city)]['categories'].unique())
                 selected_category = st.sidebar.selectbox("Choose a Cuisine", ['All'] + categories)
                 
 
 
 
-            # Add a "Recommend" button
+            # Adding a "Recommend" button
             recommend_button = st.sidebar.button('Recommend')
 
             if recommend_button:
@@ -133,6 +135,7 @@ def render_home_page():
                 with st.container(border=True):
                     st.subheader(f"{info['name']} Information", divider=True)
                     col1, col2 = st.columns([2,1])
+                    # Displaying metainformation on selected restaurant 
                     with col2:
                         with st.container(height=520,border=True):
                             # st.write(f"**Restaurant Name:** {info['name']}")
@@ -145,7 +148,7 @@ def render_home_page():
                             st.link_button("Visit Website", get_business_info(info["business_id"])["website"])
 
                             
-                                                
+                    # Plotting a folium map of the restaurant location with google maps route attached                           
                     with col1:
                         with st.container(height=520, border=True):    
                             if 'latitude' in info and 'longitude' in info:
@@ -173,7 +176,8 @@ def render_home_page():
                                     st.button(f"[Get Directions]({route})")
                             else:
                                 st.write("Location data is not available for this restaurant.")
-                        
+                    
+                    # Scrapping the restaurant images from yelp
                     with st.expander("Restaurant Images", expanded=False):
                         image_urls = get_business_info(info["business_id"])["image_urls"]
                         if image_urls:
@@ -189,8 +193,9 @@ def render_home_page():
 
                     with st.expander("More Information", expanded=False):
                         tab1,tab2 =st.tabs(["Hours","Reviews"])
+                        #Display business hours if available
                         with tab1:
-                            #Display business hours if available
+                            
                             day_mapping = {
                                     0: 'Monday',
                                     1: 'Tuesday',
@@ -215,6 +220,7 @@ def render_home_page():
                                 # Display hours in a readable format
                                 for day, hours in hours_dict.items():
                                     st.write(f"{day}: {hours}")
+                        # Display restaurant reviews
                         with tab2:
                             st.subheader("Restaurant Reviews", divider=True)
                             reviews = get_yelp_reviews(info["business_id"])

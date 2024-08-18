@@ -1,13 +1,10 @@
 
 
-import pickle
 import requests
 import numpy as np
 import pandas as pd
 import streamlit as st
-from streamlit_folium import st_folium
 from surprise import SVD, Dataset, Reader
-from streamlit_option_menu import option_menu
 from surprise.model_selection import train_test_split
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -167,7 +164,7 @@ def recommendation(df, state, name=None, category=None):
         recommended_restaurants = specific_state.iloc[top_indices]
         recommended_restaurants = recommended_restaurants[~recommended_restaurants['name'].isin(exclude_names)]        
         
-        return recommended_restaurants[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name')[:30]
+        return recommended_restaurants[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name')
     
     elif category:
         return cuisines(category)
@@ -189,15 +186,10 @@ def pagenation(df, filter_column):
     
     rows_per_page = 10
     total_pages = len(filtered_df) // rows_per_page + (len(filtered_df) % rows_per_page > 0)
-
-    
     page = st.number_input('Page Number:', min_value=1, max_value=total_pages, value=1)
-
-    
+   
     start_idx = (page - 1) * rows_per_page
     end_idx = start_idx + rows_per_page
-
-    
     page_df = filtered_df.iloc[start_idx:end_idx]
     column_map = {
         'name': 'Restaurant Name',
@@ -207,7 +199,6 @@ def pagenation(df, filter_column):
         'address': 'Address',
         'categories': 'Cuisine'
     }
-
     page_df = page_df.rename(columns=column_map)
     st.dataframe(page_df, hide_index= True)
     
@@ -223,7 +214,7 @@ def collect_ratings(df, state=None):
     # Initialize session state for user ratings and sampled restaurants
     if 'user_ratings' not in st.session_state:
         st.session_state.user_ratings = []  # List to store tuples of (business_id, rating)
-    
+
     if 'sampled_restaurants' not in st.session_state:
         sampled_df = df if state is None else df[df['state'] == state]
         st.session_state.sampled_restaurants = sampled_df.sample(num_ratings).reset_index(drop=True)
@@ -234,7 +225,7 @@ def collect_ratings(df, state=None):
     for i in range(num_ratings):
         restaurant = st.session_state.sampled_restaurants.iloc[i]
         with cols[i]:
-            with st.container(border=True, height= 250):
+            with st.container(border=True, height= 300):
                 st.write(f"**Restaurant:** {restaurant['name']} ({restaurant['city']}, {restaurant['state']})")
                 st.write(f"**Cuisine:** {restaurant['categories']}")  
                 rating = st.number_input(
@@ -251,8 +242,6 @@ def collect_ratings(df, state=None):
                 (r_id, r) for r_id, r in st.session_state.user_ratings if r_id != restaurant['business_id']
             ]
             st.session_state.user_ratings.append((restaurant['business_id'], rating))
-
-
 
 def recommend_restaurants(user_id, rated_restaurants, all_restaurants_df, state=None):
     """

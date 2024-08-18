@@ -1,15 +1,17 @@
 
 
 import pickle
-import folium
 import requests
 import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
+from surprise import SVD, Dataset, Reader
 from streamlit_option_menu import option_menu
+from surprise.model_selection import train_test_split
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+ 
 
 @st.cache_resource
 def load_model():
@@ -17,6 +19,8 @@ def load_model():
         return pickle.load(file)
 
 svd = load_model()
+
+new_df = pd.read_csv('data/new_df.csv')
 
 # Yelp API key
 API_KEY = "QO9XAZfxn80KoHc2rPOj9iEhWK2r8EJXfLNH_Q1F2O04d3XpAvdxFiX0Bz1wKge_hR0IMLsbsn2-ObSe0uTx5EWttuS_Yy_6wYvew5D0GXBGru_BV2OkyQDUlQOyZnYx"
@@ -68,7 +72,7 @@ def get_yelp_reviews(business_id):
     """
     Function to generate restaruant reviews for each restaurant
     """
-    
+
     url = f'https://api.yelp.com/v3/businesses/{business_id}/reviews'
     headers = {
         'Authorization': f'Bearer {API_KEY}',
@@ -158,7 +162,7 @@ def recommendation(df, state, name=None, category=None):
         recommended_restaurants = specific_state.iloc[top_indices]
         recommended_restaurants = recommended_restaurants[~recommended_restaurants['name'].isin(exclude_names)]        
         
-        return recommended_restaurants[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name')[:20]
+        return recommended_restaurants[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name')[:30]
     
     elif category:
         return cuisines(category)
@@ -205,39 +209,7 @@ def pagenation(df, filter_column):
     return page_df
 
 
-
-def recommend_restaurants(user_id, rated_restaurants, all_restaurants_df, state=None):
-        """
-        Function perform collaborative filtering by taking in ratings and recommending using pickled SVD model 
-        """
-        # Filter by state if provided
-        if state:
-            all_restaurants_df = all_restaurants_df[all_restaurants_df["state"] == state]
-
-        # Get all restaurant IDs
-        all_restaurant_ids = all_restaurants_df['business_id'].unique()
-
-        # Filter out the restaurants that the user has already rated
-        unrated_restaurants = [rid for rid in all_restaurant_ids if rid not in [rid for rid, _ in rated_restaurants]]
-
-        # Predict ratings for all unrated restaurants
-        predictions = [svd.predict(user_id, rid) for rid in unrated_restaurants]
-
-        # Create a DataFrame for the predictions
-        pred_df = pd.DataFrame({
-            'business_id': [pred.iid for pred in predictions],
-            'predicted_rating': [pred.est for pred in predictions]
-        })
-
-        # Merge with the original restaurants DataFrame to get more information
-        recommendations = pred_df.merge(all_restaurants_df, on='business_id', how='left')
-
-        # Sort by predicted rating and get top recommendations
-        recommendations = recommendations.sort_values(by='predicted_rating', ascending=False)
-        
-        return recommendations[['name', 'state', 'city', 'stars', 'address','categories']].drop_duplicates(subset='name')[:20].reset_index(drop=True)
-
-def collect_ratings(df):
+def collect_ratings(df, state=None):
     """
     Function to collect 3 necessary ratings for the collaborative function to recommend 
     """
@@ -245,40 +217,92 @@ def collect_ratings(df):
 
     # Initialize session state for user ratings and sampled restaurants
     if 'user_ratings' not in st.session_state:
-        st.session_state.user_ratings = [5.0] * num_ratings  
+        st.session_state.user_ratings = []  # List to store tuples of (business_id, rating)
+    
+    if 'sampled_restaurants' not in st.session_state:
+        sampled_df = df if state is None else df[df['state'] == state]
+        st.session_state.sampled_restaurants = sampled_df.sample(num_ratings).reset_index(drop=True)
 
-    # Adjust num_ratings if there are fewer restaurants available
-    if len(df) < num_ratings:
-        num_ratings = len(df)
-        st.session_state.sampled_restaurants = df
-    else:
-        st.session_state.sampled_restaurants = df.sample(num_ratings).reset_index(drop=True)
+    # Create 3 columns layout
+    cols = st.columns(num_ratings)
 
-    # Create columns for rating inputs if there are any restaurants
-    if num_ratings > 0:
-        cols = st.columns(num_ratings)
-    else:
-        st.write("No restaurants available to rate.")
-        return
-
-    # Display restaurants and collect ratings
     for i in range(num_ratings):
-        try:
-            restaurant = st.session_state.sampled_restaurants.iloc[i]
-            with cols[i]:
-                st.write(f"**Restaurant:** {restaurant['name']} ({restaurant['city']}, {restaurant['state']})")
-                st.write(f"**Cuisine:** Sample Cuisine")  # Adjust as needed
-                st.session_state.user_ratings[i] = st.number_input(
-                    f"Rate {restaurant['name']}",
-                    min_value=1.0,  # Float
-                    max_value=5.0,  # Float
-                    value=float(st.session_state.user_ratings[i]),  # Convert to float
-                    step=1.0,  # Float
-                    key=f"rating_{restaurant['business_id']}"
-                )
-        except IndexError:
-            st.write(f"Error: Attempted to access index {i}, but it is out of bounds.")
-            break
+        restaurant = st.session_state.sampled_restaurants.iloc[i]
+        with cols[i]:
+            st.write(f"**Restaurant:** {restaurant['name']} ({restaurant['city']}, {restaurant['state']})")
+            st.write(f"**Cuisine:** {restaurant['categories']}")  
+            rating = st.number_input(
+                f"Rate {restaurant['name']}",
+                min_value=1.0,  
+                max_value=5.0,  
+                value=3.0,
+                step=1.0,  
+                key=f"rating_{restaurant['business_id']}"
+            )
+            # Update the ratings list in session state
+            # Remove old rating for this restaurant if exists
+            st.session_state.user_ratings = [
+                (r_id, r) for r_id, r in st.session_state.user_ratings if r_id != restaurant['business_id']
+            ]
+            st.session_state.user_ratings.append((restaurant['business_id'], rating))
 
 
 
+def recommend_restaurants(user_id, rated_restaurants, all_restaurants_df, state=None):
+    """
+    Recommend restaurants based on user ratings and state.
+    """
+    # # Debugging: Check if rated_restaurants is being passed correctly
+    # st.write("Rated Restaurants Received:")
+    # st.write(rated_restaurants)
+
+    if state:
+        all_restaurants_df = all_restaurants_df[all_restaurants_df["state"] == state]
+
+    # Get all restaurant IDs
+    all_restaurant_ids = all_restaurants_df['business_id'].unique()
+
+    # Prepare the data for training the model
+    user_ratings_df = pd.DataFrame(rated_restaurants, columns=['business_id', 'rating'])
+    user_ratings_df['user_id'] = user_id
+
+    # Debugging: Display the user ratings DataFrame
+    # st.write("User Ratings DataFrame:")
+    # st.dataframe(user_ratings_df)
+
+    # Combine user-specific ratings with the full dataset
+    combined_df = pd.concat([new_df, user_ratings_df]) 
+
+    # Filter combined_df to include only relevant restaurants
+    filtered_df = combined_df[combined_df['business_id'].isin(all_restaurant_ids)]
+
+    # Define the Reader and Dataset
+    reader = Reader(rating_scale=(1, 5))
+    data = Dataset.load_from_df(filtered_df[['user_id', 'business_id', 'rating']], reader)
+
+    trainset, testset = train_test_split(data, test_size=0.2, random_state=42)
+
+    # Retrain the model
+    model_4 = SVD(n_factors=20, reg_all=0.01, n_epochs=40, random_state=42)
+    model_4.fit(trainset)
+
+    # Filter out the restaurants that the user has already rated
+    rated_restaurant_ids = [rid for rid, _ in rated_restaurants]
+    unrated_restaurants = [rid for rid in all_restaurant_ids if rid not in rated_restaurant_ids]
+
+    # Predict ratings for all unrated restaurants
+    predictions = [model_4.predict(user_id, rid) for rid in unrated_restaurants]
+
+    # Create a DataFrame for the predictions
+    pred_df = pd.DataFrame({
+        'business_id': [pred.iid for pred in predictions],
+        'predicted_rating': [pred.est for pred in predictions]
+    })
+
+    # Merge with the original restaurants DataFrame to get more information
+    recommendations = pred_df.merge(all_restaurants_df, on='business_id', how='left')
+
+    # Sort by predicted rating and get top recommendations
+    recommendations = recommendations.sort_values(by='predicted_rating', ascending=False)
+
+    return recommendations[['name', 'state', 'city', 'stars', 'address', 'categories', 'predicted_rating']].drop_duplicates(subset='name')

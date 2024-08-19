@@ -235,7 +235,7 @@ def collect_ratings(df, state=None):
                     min_value=1.0,  
                     max_value=5.0,  
                     value=3.0,
-                    step=1.0,  
+                    step=0.5,  
                     key=f"rating_{restaurant['business_id']}"
                 )
             # Update the ratings list in session state

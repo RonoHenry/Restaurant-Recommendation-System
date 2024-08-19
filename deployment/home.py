@@ -173,7 +173,7 @@ def render_home_page():
                                     st_folium(m, width=700, height=400)
 
                                     route = f"http://maps.google.com/maps?z=12&t=m&q=loc:{latitude}+{longitude}"
-                                    st.button(f"[Get Directions]({route})")
+                                    st.link_button('Get Directions',route)
                             else:
                                 st.write("Location data is not available for this restaurant.")
                     

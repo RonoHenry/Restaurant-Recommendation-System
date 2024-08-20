@@ -57,7 +57,7 @@ For download of the dataset's, view the [Link](https://www.yelp.com/dataset) and
 
 Conducting a thorough exploratory data analysis (EDA) is pivotal in crafting an interactive and user-friendly restaurant recommendation system. The analysis delved into critical dataset features, examining the distribution of ratings, categories, and restaurants across cities and states, as well as popular restaurants.
 
-Visualizations, including histograms, box plots, and hexbin plots, were employed for a comprehensive understanding. This EDA offered vital insights, identifying key dataset features. The dataset is primarily composed of food-related establishments, highlighting a diverse range of cuisines. Nightlife venues are also notable, indicating a vibrant nightlife scene. Conversely, fast food and burger establishments are less prevalent in the dataset.
+Visualizations, including histograms, box plots, and hexbin plots, were employed for a comprehensive understanding. This EDA offered vital insights, identifying key dataset features. 
 
 ![Alt text](./Images/res%20by%20state.png)
 
@@ -69,7 +69,6 @@ Visualizations, including histograms, box plots, and hexbin plots, were employed
 
 - In contrast, there is a clear decline in the number of restaurants as you move from left to right on the graph. States such as North Carolina (NC), Colorado (CO), Hawaii (HI), and Montana (MT) show incomplete data for these regions.
 
-- Recognizing these trends can inform location-based strategies in the restaurant recommendation system, enhancing user experiences and driving business growth.
 
 
 ![Alt text](./Images/open%20vs%20closed.png)
@@ -95,10 +94,6 @@ To ensure the recommendation system remains accurate, it is essential to regular
 - **Seasonal Patterns:** There are noticeable peaks in customer engagement from April to July, suggesting increased activity during these months.
 - **Engagement Decline:** Reviews tend to drop significantly after July, with particular declines observed in September and December.
 - **COVID-19 Impact:** A marked decrease in restaurant reviews was recorded in 2020 due to the COVID-19 pandemic.
-- **Recommendations for the Recommender System:**
-  - Factor in seasonal trends when making recommendations.
-  - Adjust timing for promotional activities based on review patterns.
-
 # Data Preparation
 
 In this section, we will perform data cleaning to prepare the dataset for analysis, the various data cleaning methods that are to be used will be;
@@ -164,7 +159,7 @@ In conclusion, this project successfully developed an interactive, user-friendly
 We met key objectives by creating a user-friendly website for easy interaction with the system and analyzing factors affecting ratings and preferences to refine our algorithms. Additionally, we utilized Folium for geographical data visualization, creating interactive maps that reveal geographic trends in restaurant recommendations. This project has achieved its goals, offering a valuable service that enriches users' dining experiences with personalized and location-based recommendations.
 
 
-# Recommendation
+# Future works
 
 a) Expansion of Dataset 
 

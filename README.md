@@ -33,35 +33,22 @@ To develop an interactive and user-friendly restaurant recommendation system.
 
 # Data understanding
 
-The dataset used in this project, was extracted from the Yelp Restaurant [database](https://www.yelp.com/dataset), which is publicly available and contains a large number of reviews across various restaurants and locations. The dataset contains 908,915 tips/reviews by 1,987,897 users on the  131,930 businesses and their attributes like hours, parking, availability, and ambience aggregated check-ins over time for each. The **dataset contains five json files namely business.json, checkin.json, review.json, tips.json and user.json**, but only two files were found to contain the relevant required information;
+The data used in this project was sourced from [YELP](https://www.yelp.com/dataset/download), which is publicly available and contains a large number of reviews across various restaurants and locations.  It is a collective dataset of various businesses and user information gotten from Yelp's website. It contains 6,990,280 reviews, 150,346 businesses, 200,100 pictures across 11 metropolitan areas and 19 states and their attributes like hours, parking, availability, and ambience aggregated check-ins over time for each. 
 
-###  Dataset Column Descriptions
-***
+The dataset contains five json files namely:-
 
-| Column Name     | Description                                                                 |
-|-----------------|-----------------------------------------------------------------------------|
-| review_id       | Unique identifier for the review.                                           |
-| user_id         | Unique identifier for the user who wrote the review.                        |
-| business_id     | Unique identifier for the business.                                         |
-| stars           | Star rating given by the user in the review or the average star rating of the business (typically on a scale of 1 to 5). |
-| useful          | Count of how many users found the review useful.                            |
-| funny           | Count of how many users found the review funny.                             |
-| cool            | Count of how many users found the review cool.                              |
-| text            | The content of the review written by the user.                              |
-| date            | Date when the review was written.                                           |
-| name            | Name of the business.                                                       |
-| address         | Street address of the business.                                             |
-| city            | City where the business is located.                                         |
-| state           | State where the business is located.                                        |
-| postal_code     | Postal code (ZIP code) of the business location.                            |
-| latitude        | Latitude coordinate of the business location.                               |
-| longitude       | Longitude coordinate of the business location.                              |
-| review_count    | Number of reviews the business has received.                                |
-| is_open         | Indicator of whether the business is currently open (1 = open, 0 = closed). |
-| attributes      | Additional attributes of the business (e.g., "WiFi: free", "HasTV: true").  |
-| categories      | List of categories the business belongs to (e.g., "Restaurants", "Bars").   |
-| hours           | Business hours (e.g., "Monday: 8am-5pm, Tuesday: 8am-5pm").                 |
+> 1. business.json
+> 2. checkin.json 
+> 3. review.json,
+> 4. tips.json
+> 5. user.json**
 
+The original data was filtered by concentrating only on restaurant businesses and on reviews made within the year and split into two datasets as shown 
+[here](Preliminary_notebook.ipynb).
+
+The two datasets have information on 
+> 1. Restaurant Informational Data
+> 2. User Review Data
 
 For download of the dataset's, view the [Link](https://www.yelp.com/dataset) and for complete [documentation](https://www.yelp.com/dataset/documentation/main) of all the datasets.
 
@@ -147,18 +134,28 @@ Using the cosine similarity matrix, our content-based recommendation system sugg
 
 In building a collaborative filtering recommendation system with the Surprise library, we selected relevant columns and initialized a Reader object to format the data. Subsequently, we loaded the data into a Surprise Dataset for further analysis and model creation.
 The following steps were taken:
-Firstly , we model a baseline SVD() model using the default parameters. The first baseline model had an RMSE of 1.256 same as our best neighborhood-based model which had an RMSE of 1.257. Using the GridSearchCv we will tune the SVD model in order to improve the training RMSE scores.
-The SVD collaborative filtering model undergoes hyperparameter tuning through grid search and cross-validation. The optimized model achieves an RMSE of approximately 1.25, signifying good predictive accuracy. The MAE value is around 1.01, indicating improved prediction accuracy. The best hyperparameters include 'n_factors' = 20 and 'reg_all' = 0.05 for RMSE, and 'n_factors' = 20 and 'reg_all' = 0.02 for MAE. These settings make the SVD model well-suited for personalized recommendations based on user ratings.
-Finally, the code created initiates an SVD model with tailored hyperparameters, training it on the dataset for personalized user recommendations. To tackle the cold start issue, a function named **restaurant_rater()** engages users to input ratings for specific restaurants. This data is collected for analysis or to support the recommendation system. In scenarios where no user ratings exist, the function seamlessly transitions to the content-based system, effectively addressing the cold start problem.
+Firstly , we modelled a   Normal Predictor  model from the surprise library which was used provided an RMSE of 0.8201. 
+
+Then we tried another model that is Non-Negative Matrix Factorization (NMF) model as it is ideal when ratings are non-negative (i.e, ratings from 1 to 5). The model was able to achieve an RMSE of 0.3479 which was a great improvement on the Normal Predictor.A single value Decomposition (SVD) was used as it works well with explicit feedback (i.e ratings). The model was able to achieve an RMSE of 0.119 which further improved the RMSE. The model was then cross validated and it achieved an RMSE mean of 0.113. Using the GridSearchCv we will tune the SVD model in order to improve the training RMSE scores.
+
+The SVD collaborative filtering model undergoes hyperparameter tuning through grid search and cross-validation. The optimized model achieves an RMSE of approximately 0.0709, signifying good predictive  accuracy. The MAE value is around 0.026, indicating improved prediction accuracy. The best-performing hyperparameter values are as follows:                       
+For optimal RMSE, the optimal hyperparameters are 'n_factors' = 20,'reg_all' = 0.01 and 'n_epochs': 40.
+  
+These results indicate that the SVD collaborative filtering model, when configured with these hyperparameters, provides a relatively low prediction error and is well-suited for making personalized recommendations based on user ratings.
+
+This model was then saved in a pickle file for deployment
 
 # Deep - Neural Networks
 
 A deep neural network was also incoperated in the modeling section, where is user and restaurant embeddings/latent factors were multiplied together to predict the user rating which was then passed into a dense connected layers. The model was tunned and regularized to reduce ovefitting and improve validation RMSE scores. 
 
+# RESULTS AND CONCLUSIONS
 
 # Evaluation
 
-Effectively addressing the "cold start problem" is crucial for our model, ensuring meaningful recommendations for new users or restaurants with limited review data. Geographical coverage expansion is also a key metric, with success defined by the model providing relevant recommendations for users across various regions and cities. The successful deployment of our recommendation model is a critical evaluation metric, emphasizing accessibility, responsiveness, and the ability to generate real-time recommendations.
+Despite improvements, the DNN’s final RMSE is higher than the SVD model's, suggesting that the SVD model performs better with this dataset and may require less tuning.
+
+We will deploy the optimized SVD.
 
 # Conclusions
 
@@ -169,13 +166,15 @@ We met key objectives by creating a user-friendly website for easy interaction w
 
 # Recommendation
 
-a) Integration of user feedback: 
+a) Expansion of Dataset 
 
-b) Enhanced user profiles:
+b) Enhanced User Interface and Experience eg:-Augmented Reality (AR), Voice Interaction
 
-c) Enhance recommendation algorithms:
+c) Integration with Other Services eg:-Reservation Systems
 
-d) Expand geographical coverage:
+d) Feedback and Continuous Improvement:User Feedback Loops, A/B Testing
+
+e) Expanding Geographical Coverage for Data Collection
 
 # Resources
 
@@ -207,4 +206,14 @@ To run the application, execute:
     ```
 
 
-##CONTRIBUTORS
+# CONTRIBUTORS
+
+| Name            | Github                             | Email                                      |
+|-----------------|------------------------------------|--------------------------------------------|
+| Brian Muthama   | [Github](https://github.com/Muthama42) | [Email](brian.muthama@student.moringaschool.com) |
+| Laaria  Chris | [Github](https://github.com/laaria-chris) | [Email](laaria.chris@student.moringaschool.com) |
+| Harris Lukundi  | [Github](https://github.com/AtomHarris) | [Email](harris.lukundi@student.moringaschool.com) |
+| Beryl Agai   | [Github](https://github.com/Agai-Beryl) | [Email](beryl.agai@student.moringaschool.com) |
+| Henry  Rono | [Github](https://github.com/RonoHenry) | [Email](henry.rono@student.moringaschool.com) |
+| Lynette Wangari  | [Github](https://github.com/Wangari-web) | [Email](lynette.wangari@student.moringaschool.com) |
+

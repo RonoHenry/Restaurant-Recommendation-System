@@ -38,18 +38,29 @@ class UnivariateAnalysis:
         plt.grid(True)
         plt.show()
 
-    def plot_bar_chart(self, column, title, color='coral', limit=None):
+    def plot_bar_chart(self, column, title, color='coral', limit=None, horizontal=False, descending=True):
         """
         Plots a bar chart of the value counts for a specified column.
+        Optionally allows for horizontal bar charts and sorting in descending order.
         """
         plt.figure(figsize=(10, 6))
-        value_counts = self.df[column].value_counts()
+        
+        # Get value counts and sort them
+        value_counts = self.df[column].value_counts(ascending=not descending)
+        
         if limit:
             value_counts = value_counts.head(limit)
-        value_counts.plot(kind='bar', color=color)
+
+        if horizontal:
+            value_counts.plot(kind='barh', color=color)  # Horizontal bar plot
+            plt.xlabel('Count')
+            plt.ylabel(column)
+        else:
+            value_counts.plot(kind='bar', color=color)   # Vertical bar plot
+            plt.xlabel(column)
+            plt.ylabel('Count')
+
         plt.title(title)
-        plt.xlabel(column)
-        plt.ylabel('Count')
         plt.xticks(rotation=90)
         plt.grid(True)
         plt.show()
@@ -73,6 +84,7 @@ class UnivariateAnalysis:
         plt.title(title)
         plt.ylabel('')  # Hide the y-axis label as it is not needed for pie charts
         plt.show()
+
 
 
 class BivariateAnalysis(ComprehensiveEDA):
